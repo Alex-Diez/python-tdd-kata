@@ -3,12 +3,12 @@ import unittest
 PAGE_SIZE = 16
 
 
-class BtreeSet(object):
+class BtreeList(object):
     def __init__(self):
         self._root = Page(True)
 
-    def __iadd__(self, item):
-        right = self._root.add_item(item)
+    def __iadd__(self, other):
+        right = self._root.add_item(other)
         if right is not self._root:
             left = self._root
             self._root = Page(False)
@@ -22,26 +22,43 @@ class BtreeSet(object):
 
 class Page(object):
     def __init__(self, external):
-        self._size = 0
         self._items = []
         self._preallocate_items()
+        self._size = 0
         self._external = external
 
     def _preallocate_items(self):
         for _ in range(PAGE_SIZE):
             self._items.append(None)
 
-    def is_full(self):
+    def __contains__(self, item):
+        if self._external:
+            return any(map(lambda e: e.as_key(item), self._items[:self._size]))
+        else:
+            return item in self._find_page_for_item(item)
+
+    def _index_of_next_page(self, item):
+        for i in range(self._size):
+            if self._items[i].key() > item:
+                return i - 1
+        return self._size - 1
+
+    def _find_page_for_item(self, item):
+        index = self._index_of_next_page(item)
+        return self._items[index].next()
+
+    def _is_full(self):
         return self._size == PAGE_SIZE
 
     def add_item(self, item):
         if self._external:
             self._add_entry(Entry(item))
-            if self.is_full():
-                return self.split()
+            if self._is_full():
+                return self._split()
         else:
-            page = self._next_page(item).add_item(item)
-            if page is not self._next_page(item):
+            page_for_item = self._find_page_for_item(item)
+            page = page_for_item.add_item(item)
+            if page is not page_for_item:
                 left, right = self.add_page(page)
                 if right is not None:
                     return right
@@ -53,23 +70,14 @@ class Page(object):
         self._items[self._size] = entry
         self._size += 1
 
-    def _index_of_next_page(self, item):
-        for i in range(self._size):
-            if self._items[i].key() > item:
-                return i - 1
-        return self._size - 1
-
-    def _next_page(self, item):
-        index = self._index_of_next_page(item)
-        return self._items[index].next()
-
-    def __contains__(self, item):
-        if self._external:
-            return any(map(lambda e: e.as_key(item), self._items[:self._size]))
+    def add_page(self, page):
+        self._add_entry(Entry(page._items[0].key(), page))
+        if self._is_full():
+            return self, self._split()
         else:
-            return item in self._next_page(item)
+            return self, None
 
-    def split(self):
+    def _split(self):
         half = self._size // 2
         page = Page(self._external)
         for index in range(half, self._size):
@@ -80,13 +88,6 @@ class Page(object):
             self._items[index] = None
         self._size = half
         return page
-
-    def add_page(self, page):
-        self._add_entry(Entry(page._items[0].key(), page))
-        if self.is_full():
-            return self, self.split()
-        else:
-            return self, None
 
 
 class Entry(object):
@@ -104,36 +105,36 @@ class Entry(object):
         return self._next
 
 
-class BtreeSetTest(unittest.TestCase):
+class BtreeListTest(unittest.TestCase):
     def setUp(self):
-        self.set = BtreeSet()
+        self.list = BtreeList()
 
-    def testSetContainsManyAddedValues(self):
-        self.set += 1
-        self.set += 2
-        self.set += 3
+    def testListContainsManyAddedValues(self):
+        self.list += 1
+        self.list += 2
+        self.list += 3
 
-        self.assertTrue(1 in self.set)
-        self.assertTrue(2 in self.set)
-        self.assertTrue(3 in self.set)
+        self.assertTrue(1 in self.list)
+        self.assertTrue(2 in self.list)
+        self.assertTrue(3 in self.list)
 
-    def testSetContainsMoreThanPage(self):
+    def testListContainsMoreThanOnePage(self):
         for i in range(PAGE_SIZE + 1):
-            self.set += i
+            self.list += i
 
         for i in range(PAGE_SIZE + 1):
-            self.assertTrue(i in self.set)
+            self.assertTrue(i in self.list)
 
-    def testSetContainsMoreThanOneLevel(self):
+    def testListContainsMoreThanOneLevelOfPages(self):
         for i in range(PAGE_SIZE ** 2 + 1):
-            self.set += i
+            self.list += i
 
         for i in range(PAGE_SIZE ** 2 + 1):
-            self.assertTrue(i in self.set)
+            self.assertTrue(i in self.list)
 
-    def testSetContainsHugeNumberOfItems(self):
+    def testListContainsHugeNumberOfAddedValues(self):
         for i in range(PAGE_SIZE ** 4 + 1):
-            self.set += i
+            self.list += i
 
         for i in range(PAGE_SIZE ** 4 + 1):
-            self.assertTrue(i in self.set)
+            self.assertTrue(i in self.list)

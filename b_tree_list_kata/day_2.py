@@ -1,7 +1,7 @@
 import unittest
 
 
-class BtreeSet(object):
+class BtreeList(object):
     def __init__(self):
         self._root = Page(True)
 
@@ -82,21 +82,21 @@ class Entry(object):
         return repr(self._key)
 
 
-class BtreeSetTest(unittest.TestCase):
+class BtreeListTest(unittest.TestCase):
     def setUp(self):
-        self.set = BtreeSet()
+        self.list = BtreeList()
 
-    def testSetContainsAddedValue(self):
-        self.set.add(1)
+    def testListContainsAddedValue(self):
+        self.list.add(1)
 
-        self.assertTrue(1 in self.set)
+        self.assertTrue(1 in self.list)
 
-    def testSetDoesNotContainNotAddedValue(self):
-        self.assertFalse(1 in self.set)
+    def testListDoesNotContainNotAddedValue(self):
+        self.assertFalse(1 in self.list)
 
-    def testSetContainsAllItem_moreThanOnePage(self):
+    def testListContainsAllItem_moreThanOnePage(self):
         for i in range(16 + 1):
-            self.set.add(i)
+            self.list.add(i)
 
         for i in range(16 + 1):
-            self.assertTrue(i in self.set)
+            self.assertTrue(i in self.list)

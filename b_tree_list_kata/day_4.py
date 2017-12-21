@@ -3,7 +3,7 @@ import unittest
 PAGE_SIZE = 16
 
 
-class BtreeSet(object):
+class BtreeList(object):
     def __init__(self):
         self._root = Page(True)
 
@@ -113,36 +113,36 @@ class Entry(object):
             return item in self._next
 
 
-class BtreeSetTest(unittest.TestCase):
+class BtreeListTest(unittest.TestCase):
     def setUp(self):
-        self.set = BtreeSet()
+        self.list = BtreeList()
 
-    def testSetContainsManyAddedValues(self):
-        self.set += 1
-        self.set += 2
-        self.set += 3
+    def testListContainsManyAddedValues(self):
+        self.list += 1
+        self.list += 2
+        self.list += 3
 
-        self.assertTrue(1 in self.set)
-        self.assertTrue(2 in self.set)
-        self.assertTrue(3 in self.set)
+        self.assertTrue(1 in self.list)
+        self.assertTrue(2 in self.list)
+        self.assertTrue(3 in self.list)
 
-    def testSetContainsMoreThanPage_addedValues(self):
+    def testListContainsMoreThanPage_addedValues(self):
         for i in range(PAGE_SIZE + 1):
-            self.set += i
+            self.list += i
 
         for i in range(PAGE_SIZE + 1):
-            self.assertTrue(i in self.set)
+            self.assertTrue(i in self.list)
 
-    def testSetContainsMoreThanOneLevelOfAddedValues(self):
+    def testListContainsMoreThanOneLevelOfAddedValues(self):
         for i in range(PAGE_SIZE ** 2 + 1):
-            self.set += i
+            self.list += i
 
         for i in range(PAGE_SIZE ** 2 + 1):
-            self.assertTrue(i in self.set)
+            self.assertTrue(i in self.list)
 
-    def testSetContainsHugeAmountOfAddedValues(self):
+    def testListContainsHugeAmountOfAddedValues(self):
         for i in range(PAGE_SIZE ** 4 + 1):
-            self.set += i
+            self.list += i
 
         for i in range(PAGE_SIZE ** 4 + 1):
-            self.assertTrue(i in self.set)
+            self.assertTrue(i in self.list)

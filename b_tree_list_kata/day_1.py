@@ -3,7 +3,7 @@ import unittest
 PAGE_SIZE = 16
 
 
-class BtreeSet(object):
+class BtreeList(object):
     def __init__(self):
         self._root = Page(True)
 
@@ -87,32 +87,32 @@ class Entry(object):
         return repr(self._key)
 
 
-class BtreeSetTest(unittest.TestCase):
+class BtreeListTest(unittest.TestCase):
     def setUp(self):
-        self.set = BtreeSet()
+        self.list = BtreeList()
 
-    def testSetContainsAddValue(self):
-        self.set.add(1)
+    def testListContainsAddValue(self):
+        self.list.add(1)
 
-        self.assertTrue(self.set.contains(1))
+        self.assertTrue(self.list.contains(1))
 
-    def testSetDoesNotContainNotAddedValue(self):
-        self.set.add(1)
+    def testListDoesNotContainNotAddedValue(self):
+        self.list.add(1)
 
-        self.assertFalse(self.set.contains(0))
+        self.assertFalse(self.list.contains(0))
 
-    def testSetContainsManyAddedValues(self):
-        self.set.add(1)
-        self.set.add(2)
-        self.set.add(3)
+    def testListContainsManyAddedValues(self):
+        self.list.add(1)
+        self.list.add(2)
+        self.list.add(3)
 
-        self.assertTrue(self.set.contains(1))
-        self.assertTrue(self.set.contains(2))
-        self.assertTrue(self.set.contains(3))
+        self.assertTrue(self.list.contains(1))
+        self.assertTrue(self.list.contains(2))
+        self.assertTrue(self.list.contains(3))
 
-    def testSetContainsMoreThanOnePageAddedValues(self):
+    def testListContainsMoreThanOnePageAddedValues(self):
         for i in range(PAGE_SIZE + 1):
-            self.set.add(i)
+            self.list.add(i)
 
         for i in range(PAGE_SIZE + 1):
-            self.assertTrue(self.set.contains(i))
+            self.assertTrue(self.list.contains(i))
